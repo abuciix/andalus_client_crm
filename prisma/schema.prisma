@@ -1,0 +1,194 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client"
+  output   = "../app/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+enum Role {
+  CLIENT
+  STAFF
+}
+
+enum InviteStatus {
+  PENDING
+  ACCEPTED
+}
+
+enum ProjectStage {
+  LEAD
+  CONTRACT
+  DESIGN
+  PERMITTING
+  CONSTRUCTION
+  COMPLETE
+}
+
+enum DocumentStatus {
+  PENDING
+  VERIFIED
+}
+
+enum InvoiceStatus {
+  PENDING
+  PAYMENT_SUBMITTED
+  VERIFIED
+  OVERDUE
+}
+
+enum TaskType {
+  GENERAL
+  PERMIT
+}
+
+enum TaskStatus {
+  OPEN
+  IN_PROGRESS
+  DONE
+}
+
+enum ApprovalStatus {
+  NOT_REQUIRED
+  PENDING_CLIENT
+  APPROVED
+  CHANGES_REQUESTED
+}
+
+model User {
+  id           String        @id @default(cuid())
+  role         Role
+  name         String
+  email        String        @unique
+  passwordHash String?
+  inviteToken  String?       @unique
+  inviteStatus InviteStatus?
+  invitedAt    DateTime?
+  invitedById  String?
+  invitedBy    User?         @relation("UserInvites", fields: [invitedById], references: [id])
+  invitedUsers User[]        @relation("UserInvites")
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
+
+  clientProjects     Project[]           @relation("ClientProjects")
+  staffProjects      Project[]           @relation("StaffProjects")
+  sentMessages       Message[]
+  assignedTasks      Task[]              @relation("TaskAssignee")
+  completedChecklist TaskChecklistItem[]
+  uploadedDocuments  Document[]          @relation("DocumentUploader")
+  verifiedDocuments  Document[]          @relation("DocumentVerifier")
+  verifiedInvoices   Invoice[]           @relation("InvoiceVerifier")
+}
+
+model Project {
+  id        String       @id @default(cuid())
+  clientId  String?
+  client    User?        @relation("ClientProjects", fields: [clientId], references: [id])
+  staffId   String?
+  staff     User?        @relation("StaffProjects", fields: [staffId], references: [id])
+  stage     ProjectStage @default(LEAD)
+  city      String
+  title     String
+  // Raw contact-form capture, present before a client User exists. Staff-only visible.
+  contactName  String?
+  contactEmail String?
+  contactPhone String?
+  notes        String? // internal notes — staff-only
+  createdAt DateTime     @default(now())
+  updatedAt DateTime     @updatedAt
+
+  documents Document[]
+  invoices  Invoice[]
+  messages  Message[]
+  tasks     Task[]
+
+  @@index([stage])
+  @@index([clientId])
+  @@index([staffId])
+}
+
+model Document {
+  id           String         @id @default(cuid())
+  projectId    String
+  project      Project        @relation(fields: [projectId], references: [id])
+  type         String
+  version      Int            @default(1)
+  status       DocumentStatus @default(PENDING)
+  fileName     String
+  storageKey   String
+  uploadedById String
+  uploadedBy   User           @relation("DocumentUploader", fields: [uploadedById], references: [id])
+  verifiedById String?
+  verifiedBy   User?          @relation("DocumentVerifier", fields: [verifiedById], references: [id])
+  createdAt    DateTime       @default(now())
+
+  @@index([projectId])
+}
+
+model Invoice {
+  id              String        @id @default(cuid())
+  projectId       String
+  project         Project       @relation(fields: [projectId], references: [id])
+  amountEtb       Int
+  status          InvoiceStatus @default(PENDING)
+  dueDate         DateTime
+  paymentMethod   String?
+  paymentProofKey String?
+  verifiedById    String?
+  verifiedBy      User?         @relation("InvoiceVerifier", fields: [verifiedById], references: [id])
+  createdAt       DateTime      @default(now())
+  updatedAt       DateTime      @updatedAt
+
+  @@index([projectId])
+}
+
+model Message {
+  id        String   @id @default(cuid())
+  projectId String
+  project   Project  @relation(fields: [projectId], references: [id])
+  senderId  String
+  sender    User     @relation(fields: [senderId], references: [id])
+  body      String
+  createdAt DateTime @default(now())
+
+  @@index([projectId, createdAt])
+}
+
+model Task {
+  id             String         @id @default(cuid())
+  projectId      String
+  project        Project        @relation(fields: [projectId], references: [id])
+  assigneeId     String?
+  assignee       User?          @relation("TaskAssignee", fields: [assigneeId], references: [id])
+  title          String
+  type           TaskType       @default(GENERAL)
+  status         TaskStatus     @default(OPEN)
+  approvalStatus ApprovalStatus @default(NOT_REQUIRED)
+  startDate      DateTime?
+  dueDate        DateTime?
+  createdAt      DateTime       @default(now())
+  updatedAt      DateTime       @updatedAt
+
+  checklistItems TaskChecklistItem[]
+
+  @@index([projectId])
+}
+
+model TaskChecklistItem {
+  id            String    @id @default(cuid())
+  taskId        String
+  task          Task      @relation(fields: [taskId], references: [id])
+  label         String
+  required      Boolean   @default(true)
+  done          Boolean   @default(false)
+  completedAt   DateTime?
+  completedById String?
+  completedBy   User?     @relation(fields: [completedById], references: [id])
+  sortOrder     Int       @default(0)
+
+  @@index([taskId])
+}
