@@ -84,6 +84,36 @@ async function main() {
     },
   });
 
+  const towerProject = await prisma.project.upsert({
+    where: { id: "bole-tower-seed" },
+    update: {},
+    create: {
+      id: "bole-tower-seed",
+      clientId: null,
+      staffId: staff.id,
+      stage: "COMPLETE",
+      city: "Addis Ababa",
+      title: "Bole Tower Residences",
+      coverImageUrl: "/projects/bole-tower/hero.jpg",
+      galleryImageUrls: ["/projects/bole-tower/hero.jpg"],
+    },
+  });
+
+  const apartmentsProject = await prisma.project.upsert({
+    where: { id: "piassa-apartments-seed" },
+    update: {},
+    create: {
+      id: "piassa-apartments-seed",
+      clientId: null,
+      staffId: staff.id,
+      stage: "CONSTRUCTION",
+      city: "Addis Ababa",
+      title: "Piassa Apartments",
+      coverImageUrl: "/projects/piassa-apartments/hero.jpg",
+      galleryImageUrls: ["/projects/piassa-apartments/hero.jpg"],
+    },
+  });
+
   await prisma.document.createMany({
     data: [
       {
@@ -194,6 +224,8 @@ async function main() {
   console.log(`  mid-pipeline project: ${midProject.id} (${midProject.title})`);
   console.log(`  fresh lead: ${leadProject.id} (${leadProject.title})`);
   console.log(`  completed (public) project: ${completedProject.id} (${completedProject.title})`);
+  console.log(`  completed (public) project: ${towerProject.id} (${towerProject.title})`);
+  console.log(`  construction (public) project: ${apartmentsProject.id} (${apartmentsProject.title})`);
 }
 
 main()

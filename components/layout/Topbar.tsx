@@ -5,7 +5,7 @@ export function BrandMark() {
   return (
     <Link href="/" className="flex items-center">
       {/* eslint-disable-next-line @next/next/no-img-element */}
-      <img src="/andalus-logo.svg" alt="Andalus Architecture" className="h-14 w-auto" />
+      <img src="/andalus-logo.svg" alt="Andalus Architecture" className="h-12 w-auto" />
     </Link>
   );
 }
