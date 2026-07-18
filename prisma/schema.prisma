@@ -98,6 +98,10 @@ model Project {
   contactEmail String?
   contactPhone String?
   notes        String? // internal notes — staff-only
+  // Public-facing project photos (homepage/gallery). Cover is the card/hero image;
+  // gallery holds additional shots for the project detail page.
+  coverImageUrl    String?
+  galleryImageUrls String[] @default([])
   createdAt DateTime     @default(now())
   updatedAt DateTime     @updatedAt
 

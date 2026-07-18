@@ -17,11 +17,23 @@ export default async function ProjectGalleryPage() {
             <Link
               key={project.id}
               href={`/projects/${project.id}`}
-              className="block border border-line p-5 hover:border-foreground transition-colors"
+              className="block border border-line overflow-hidden hover:border-foreground transition-colors"
             >
-              <div className="font-brand text-lg font-medium">{project.title}</div>
-              <div className="font-meta text-xs uppercase tracking-wide text-muted mt-1">
-                {project.city}
+              {project.coverImageUrl && (
+                <div className="aspect-[4/3] overflow-hidden">
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img
+                    src={project.coverImageUrl}
+                    alt={project.title}
+                    className="h-full w-full object-cover"
+                  />
+                </div>
+              )}
+              <div className="p-5">
+                <div className="font-brand text-lg font-medium">{project.title}</div>
+                <div className="font-meta text-xs uppercase tracking-wide text-muted mt-1">
+                  {project.city}
+                </div>
               </div>
             </Link>
           ))}

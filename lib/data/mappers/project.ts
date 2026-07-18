@@ -29,6 +29,8 @@ export function toClientProjectView(p: ProjectWithRelations) {
     stage: p.stage,
     city: p.city,
     createdAt: p.createdAt,
+    coverImageUrl: p.coverImageUrl,
+    galleryImageUrls: p.galleryImageUrls,
     documents: p.documents.map(toClientDocumentView),
     invoices: p.invoices.map(toClientInvoiceView),
     tasks: p.tasks.map(toClientTaskView),

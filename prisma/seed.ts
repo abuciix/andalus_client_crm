@@ -64,6 +64,26 @@ async function main() {
     },
   });
 
+  const completedProject = await prisma.project.upsert({
+    where: { id: "abdu-residence-seed" },
+    update: {},
+    create: {
+      id: "abdu-residence-seed",
+      clientId: null,
+      staffId: staff.id,
+      stage: "COMPLETE",
+      city: "Addis Ababa",
+      title: "Abdu Residence — Private Villa",
+      coverImageUrl: "/projects/abdu-residence/hero.jpg",
+      galleryImageUrls: [
+        "/projects/abdu-residence/hero.jpg",
+        "/projects/abdu-residence/exterior-2.jpg",
+        "/projects/abdu-residence/facade-detail.jpg",
+        "/projects/abdu-residence/aerial.jpg",
+      ],
+    },
+  });
+
   await prisma.document.createMany({
     data: [
       {
@@ -173,6 +193,7 @@ async function main() {
   console.log(`  client: client@andalus.et / password123`);
   console.log(`  mid-pipeline project: ${midProject.id} (${midProject.title})`);
   console.log(`  fresh lead: ${leadProject.id} (${leadProject.title})`);
+  console.log(`  completed (public) project: ${completedProject.id} (${completedProject.title})`);
 }
 
 main()

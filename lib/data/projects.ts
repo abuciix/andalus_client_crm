@@ -77,7 +77,14 @@ export async function getPublicProject(projectId: string) {
   if (!project || !["CONSTRUCTION", "COMPLETE"].includes(project.stage)) {
     throw new NotFoundError();
   }
-  return { id: project.id, title: project.title, city: project.city, stage: project.stage };
+  return {
+    id: project.id,
+    title: project.title,
+    city: project.city,
+    stage: project.stage,
+    coverImageUrl: project.coverImageUrl,
+    galleryImageUrls: project.galleryImageUrls,
+  };
 }
 
 export async function createLeadFromContact(data: {
